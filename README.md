@@ -1,6 +1,6 @@
 # Mill
 
-A Swift port of [`../DIY`](../DIY)'s CadQuery enclosure project, built on
+A Swift port of [`../DIY`](https://github.com/P0ed/DIY)'s CadQuery enclosure project, built on
 [OCCTSwift 3.0.0](https://github.com/SecondMouseAU/OCCTSwift/tree/v3.0.0).
 Includes the AGC case, connector and control models, V30 and tower knobs,
 ISO/UTS thread ridges, and STL, STEP, and three-view SVG export.
@@ -93,8 +93,7 @@ let ridge = thread("M4", length: 10, location: .internal)
 
 Swift APIs use camelCase (`ptnBotM`, `ptnsMap`, `threeView`). `AGCParts` names
 the original positional results. `defaultAGC` applies `main.py`'s patterns;
-`agc` retains `agc.py`'s defaults. The original `grid` has 3×6 cells and `grid4`
-has 4×6 cells. Thread curves retain the original dimensions, clearance and
+`agc` retains `agc.py`'s defaults. Thread curves retain the original dimensions, clearance and
 taper equations, using OCCTSwift spline interpolation and sewn ruled surfaces.
 SVGs use OCCT hidden-line removal with vector polylines at 0.02 mm deflection.
 The squircle helper uses the exact fifth-power diagonal instead of DIY's

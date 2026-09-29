@@ -11,10 +11,10 @@ public let inX = inch / 16
 
 public typealias Pattern = @Sendable (Int, Int) -> Bool
 public func und(_ l: @escaping Pattern, _ r: @escaping Pattern) -> Pattern {
-    { l($0, $1) && r($0, $1) }
+	{ l($0, $1) && r($0, $1) }
 }
 public func oder(_ l: @escaping Pattern, _ r: @escaping Pattern) -> Pattern {
-    { l($0, $1) || r($0, $1) }
+	{ l($0, $1) || r($0, $1) }
 }
 public func nicht(_ pattern: @escaping Pattern) -> Pattern { { !pattern($0, $1) } }
 
@@ -32,11 +32,11 @@ public let ptnTopL: Pattern = { x, y in x == 0 && y == 5 }
 public let ptnTopR: Pattern = { x, y in x == 3 && y == 5 }
 
 public func ptnMap<A>(_ yes: @escaping () -> A, _ pattern: @escaping Pattern,
-                      _ no: @escaping () -> A) -> (Int, Int) -> A {
-    { pattern($0, $1) ? yes() : no() }
+					  _ no: @escaping () -> A) -> (Int, Int) -> A {
+	{ pattern($0, $1) ? yes() : no() }
 }
 
 /// Rules are evaluated in order; the first matching rule wins.
 public func ptnsMap<A>(_ rules: (Pattern, () -> A)...) -> (Int, Int) -> A? {
-    { x, y in rules.first(where: { $0.0(x, y) }).map { $0.1() } }
+	{ x, y in rules.first(where: { $0.0(x, y) }).map { $0.1() } }
 }
