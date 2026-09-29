@@ -17,11 +17,11 @@ public func hexNut(_ diameter: Double, _ length: Double, angle: Double? = nil) -
 }
 public func lemoM12RoundNut() -> Model {
     mov(z: 2.5 / 2)(cylinder(2.5, 16 / 2).chamfer(1, edges: .maximum(.z)))
-        - (rotz(45) • mirror(.xz, .yz) • rotz(-45) • mov(7))(box(1.4, 1.5, 5))
+        - (rotz(45) • mirror(.xz, .yz) • rotz(-45) • mov(7) § box(1.4, 1.5, 5))
 }
 public func lemoECG1B303() -> Model {
     let pins = (0..<3).map { i in
-        (mov(z: 1.5) • rotz(120 * Double(i)) • mov(2))(cylinder(3, 0.5))
+        mov(z: 1.5) • rotz(120 * Double(i)) • mov(2) § cylinder(3, 0.5)
     }
     let face = dif([cylinder(3.5, 12 / 2)] + pins).chamfer(0.25, edges: .maximum(.z))
     let groove = mov(z: 1.5)(cylinder(3, 7.75 / 2) - cylinder(3, 6.25 / 2))
@@ -34,16 +34,16 @@ public func pomona1581() -> Model {
 }
 public func toggle(_ position: Bool? = nil, nutAngle: Double? = nil) -> Model {
     let pos = position ?? Bool.random()
-    return (mov(z: 4.2 / 2) • rotz(90))(cylinder(4.2, 3.175).chamfer(0.5, edges: .maximum(.z)))
-        + (mov(0, pos ? -1.7 : 1.7, 9) • rotx(pos ? 13 : -13))(
+    return (mov(z: 4.2 / 2) • rotz(90) § cylinder(4.2, 3.175).chamfer(0.5, edges: .maximum(.z)))
+        + (mov(0, pos ? -1.7 : 1.7, 9) • rotx(pos ? 13 : -13) §
             rotz(90)(cylinder(14, 1.3).fillet(1.299)))
         + hexNut(8.5, 1.5, angle: nutAngle)
 }
 public func bourns51(_ angle: Double? = nil, nutAngle: Double? = nil) -> Model {
     let angle = angle ?? Double.random(in: -60...60)
-    let base = (mov(z: 2.5) • rotz(90))(cylinder(5, 9.5 / 2).chamfer(0.5, edges: .maximum(.z)))
+    let base = mov(z: 2.5) • rotz(90) § cylinder(5, 9.5 / 2).chamfer(0.5, edges: .maximum(.z))
     let shaft = cylinder(10, 6.35 / 2).chamfer(0.5, edges: .maximum(.z)) - mov(z: 5)(box(7, 1.5, 3))
-    return base + (mov(z: 9) • rotz(90 + angle))(shaft) + hexNut(14, 2.36, angle: nutAngle)
+    return base + (mov(z: 9) • rotz(90 + angle) § shaft) + hexNut(14, 2.36, angle: nutAngle)
 }
 public func led5() -> Model {
     rotz(90)(mov(z: 4.5 / 2)(cylinder(4.5, 2.5)).fillet(2.499, edges: .maximum(.z)))
@@ -57,11 +57,11 @@ public typealias Knob = (Double?) -> Model
 public func mkKnob(_ angle: Double?, _ c: Double, _ transform: @escaping Transform) -> Model {
     let body = rotz(90)(cylinder(in2, in4).chamfer(c, edges: .maximum(.z)))
         - mov(z: 3 - 9.499 / 2)(cylinder(9.5, in8))
-    return (rotz(angle ?? Double.random(in: -60...60)) • mov(z: in4) • transform)(body)
+    return rotz(angle ?? Double.random(in: -60...60)) • mov(z: in4) • transform § body
 }
 public func knobV30(_ angle: Double? = nil) -> Model {
     mkKnob(angle, 0.15) { body in
-        body - (mirror(.yz) • mov(13.5, 0, 8) • roty(75))(box(20, 20, 20))
+        body - (mirror(.yz) • mov(13.5, 0, 8) • roty(75) § box(20, 20, 20))
             - mov(0, 4 - 0.75, in4)(box(1.5, 8, 1.5).chamfer(0.749))
     }
 }

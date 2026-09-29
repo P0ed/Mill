@@ -5,9 +5,22 @@ precedencegroup CompositionPrecedence {
 
 infix operator •: CompositionPrecedence
 
-/// Right-to-left function composition: `(f • g)(x) == f(g(x))`.
+/// Right-to-left function composition: `(f • g § x) == f(g(x))`.
 public func • <A, B, C>(f: @escaping (B) -> C, g: @escaping (A) -> B) -> (A) -> C {
     { f(g($0)) }
+}
+
+precedencegroup ApplicativePrecedence {
+    associativity: right
+    higherThan: AssignmentPrecedence
+    lowerThan: TernaryPrecedence
+}
+
+infix operator §: ApplicativePrecedence
+
+/// Applies a function to an argument, propagating any error it throws.
+public func § <A, B>(f: (A) throws -> B, x: A) rethrows -> B {
+    try f(x)
 }
 
 public func id<A>(_ value: A) -> A { value }

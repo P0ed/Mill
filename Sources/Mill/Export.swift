@@ -4,11 +4,11 @@ import OCCTSwift
 public func threeView(_ model: Model) throws -> Model {
     let size = try bounds(model).size
     let offset = size.x / 4
-    return (mov(size.x / 2 + size.y / 2, 0, size.y / 2 + size.z / 2) • compound)([
+    return mov(size.x / 2 + size.y / 2, 0, size.y / 2 + size.z / 2) • compound § [
         model,
-        (mov(size.x / 2 + size.y / 2 + offset) • rotz(-90))(model),
-        (mov(z: size.y / 2 + size.z / 2 + offset) • rotx(90))(model),
-    ])
+        mov(size.x / 2 + size.y / 2 + offset) • rotz(-90) § model,
+        mov(z: size.y / 2 + size.z / 2 + offset) • rotx(90) § model,
+    ]
 }
 
 /// Three orthographic views, using OCCT hidden-line removal and sampled vector edges.

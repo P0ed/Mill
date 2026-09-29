@@ -45,17 +45,22 @@ files in a CAD viewer instead of Python's `ocp_vscode.show`.
 
 ## Composition
 
-The generic `•` operator replaces `com` and composes right to left:
+The generic `•` operator replaces `com` and composes right to left. The `§`
+operator applies the composed function to its argument and rethrows errors:
 
 ```swift
 import Mill
 
 let transform = rotz(90) • mov(10, 0, 0)
 let part = transform(box(2, 4, 6)) // translate first, then rotate
-let mountingHoles = (mirror(.xz, .yz) • mov(40, 60))(cylinder(15, 2.1))
+let mountingHoles = mirror(.xz, .yz) • mov(40, 60) § cylinder(15, 2.1)
 let plate = box(100, 140, 3) - mountingHoles
 try export("plate", plate)
 ```
+
+`§` associates right to left and binds below ternary and arithmetic operators,
+but above assignment. Use parentheses around an application when combining
+its result with another model: `body - (mirror(.yz) • mov(10) § cutter)`.
 
 `+` unions, `-` subtracts, and `*` intersects models. `mirror` unions reflected
 copies. Boxes and cylinders are centered; cones and extrusions start at Z=0.

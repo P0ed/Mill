@@ -95,7 +95,7 @@ public func grid(_ transform: (Int, Int) -> Model?) -> Model { grid(columns: 3, 
 public func grid4(_ transform: (Int, Int) -> Model?) -> Model { grid(columns: 4, transform) }
 
 public func holes(_ w: Double, _ h: Double, _ length: Double, _ radius: Double) -> Model {
-    (mirror(.xz, .yz) • mov(w, h))(cylinder(length, radius))
+    mirror(.xz, .yz) • mov(w, h) § cylinder(length, radius)
 }
 
 public func mill(_ w: Double, _ h: Double, _ t: Double,
@@ -105,8 +105,8 @@ public func mill(_ w: Double, _ h: Double, _ t: Double,
 public func frame(_ w: Double, _ h: Double, _ t: Double, _ wt: Double,
                   c: Double = 0.5, ir: Double = 2) -> Model {
     sum([
-        (mirror(.xz) • mov(y: h / 2 - wt / 2))(box(w, wt, t)),
-        (mirror(.yz) • mov(w / 2 - wt / 2))(box(wt, h, t)),
+        mirror(.xz) • mov(y: h / 2 - wt / 2) § box(w, wt, t),
+        mirror(.yz) • mov(w / 2 - wt / 2) § box(wt, h, t),
     ]) * mill(w, h, t, r: ir, c: c)
 }
 public func xxx(_ w: Double, _ h: Double, _ t: Double, _ wt: Double, _ ws: Double,
@@ -116,7 +116,7 @@ public func xxx(_ w: Double, _ h: Double, _ t: Double, _ wt: Double, _ ws: Doubl
     guard count > 1 else { return .empty }
     return sum((1..<count).map { i in
         let d = ws * Double(i)
-        return (mirror(.yz) • mov(d - w / 2, d - h / 2) • rotz(-45))(
-            box(d * 2 * s2, wt, t).chamfer(c))
+        return mirror(.yz) • mov(d - w / 2, d - h / 2) • rotz(-45) §
+            box(d * 2 * s2, wt, t).chamfer(c)
     }) * box(w, h, t).chamfer(c)
 }

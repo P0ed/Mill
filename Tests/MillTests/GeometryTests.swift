@@ -29,7 +29,7 @@ struct GeometryTests {
         let c = try bounds(cylinder(8, 2))
         #expect(abs(c.min.z + 4) < 1e-5)
         #expect(abs(c.max.z - 4) < 1e-5)
-        let transformed = try bounds((rotz(90) • mov(10))(box(2, 4, 6)))
+        let transformed = try bounds(rotz(90) • mov(10) § box(2, 4, 6))
         #expect(abs(transformed.center.x) < 1e-5)
         #expect(abs(transformed.center.y - 10) < 1e-5)
         #expect(abs(transformed.size.x - 4) < 1e-5)
