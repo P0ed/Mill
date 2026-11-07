@@ -93,11 +93,26 @@ private func buildAGC(
 		}
 	}
 
+	func mountingHoles(_ radius: Double) -> Model {
+		let corners = holes(w / 2 - hol, h / 2 - hol, t2, radius)
+		return modules == 1 ? corners : corners + holes(0, h / 2 - hol, t2, radius)
+	}
+
 	func brick(_ direction: Double) -> Model {
 		let cavity = module { _ in
 			boxFC((w - col) / Double(modules) - col, h - wt * 2, t2)
 				+ box(cw - col + crh * 2 + 1, ch + crh * 2 + 1, t2)
 					.chamfer(crh + 1, edges: .parallel(.z)).chamfer(c2, edges: .notParallel(.z))
+		}
+
+		let pockets = if modules == 1 {
+			mirror(.xz)
+				• mov(0, ch / 4 - 0.5, (wt - t3 + dt / 2 + pl / 2) * direction)
+				§ boxFC(w - col - wt * 2, ch / 2 - wt, 2 + dt + pl)
+		} else {
+			mirror(.xz, .yz)
+				• mov(cw / 2 - 0.5, ch / 4 - 0.5, (wt - t3 + dt / 2 + pl / 2) * direction)
+				§ boxFC(cw - wt, ch / 2 - wt, 2 + dt + pl)
 		}
 
 		return dif([
@@ -106,9 +121,7 @@ private func buildAGC(
 			mov(z: (2 + dt) * direction) • sum
 				§ [boxFC(w - wt * 2, h - col * 2, t2), cavity],
 
-			mirror(.xz, .yz)
-				• mov(cw / 2 - 0.5, ch / 4 - 0.5, (wt - t3 + dt / 2 + pl / 2) * direction)
-				§ boxFC(cw - wt, ch / 2 - wt, 2 + dt + pl),
+			pockets,
 
 			mirror(.xz) • mov(0, h / 2, (pl / 2 - t3) * direction)
 				§ box(w + t, col * 2, dt * 2 + pl).chamfer(c2),
@@ -125,8 +138,7 @@ private func buildAGC(
 	}
 
 	let bottom = brick(1)
-		- holes(w / 2 - hol, h / 2 - hol, t2, m4dr)
-		- holes(0, h / 2 - hol, t2, m4dr)
+		- mountingHoles(m4dr)
 
 	let topCutouts = panel?.cutouts(t2) ?? module { m in
 		grid(ptnsMap(
@@ -138,8 +150,7 @@ private func buildAGC(
 	}
 
 	let top = brick(-1)
-		- holes(w / 2 - hol, h / 2 - hol, t2, m4xr)
-		- holes(0, h / 2 - hol, t2, m4xr)
+		- mountingHoles(m4xr)
 		- topCutouts
 
 	_ = try bottom.shape

@@ -134,7 +134,10 @@ struct GeometryTests {
 			let shape = try model.shape
 			#expect(shape.isValid)
 			#expect(try #require(shape.volume) > 0)
-			try compareWithDIY(shape, name: "\(modules)-\(name)")
+			// The single-module case now uses four bolts and revised pockets.
+			if modules > 1 {
+				try compareWithDIY(shape, name: "\(modules)-\(name)")
+			}
 		}
 
 		let b = try bounds(parts.enclosure)

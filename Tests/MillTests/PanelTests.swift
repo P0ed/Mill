@@ -140,4 +140,49 @@ struct PanelTests {
 		#expect(try volume(parts.top * mov(x, 38.1, 14.5)(cylinder(0.5, 1))) < 1e-5)
 		#expect(try volume(parts.top * mov(x + inch, 38.1, 14.5)(cylinder(0.5, 1))) > 1)
 	}
+
+	@Test func singleModuleConstruction() throws {
+		let panel = try PanelLayout.decode(document())
+		let cases = [
+			try defaultAGC(modules: 1, includeControls: false),
+			try agc(panel: panel, includeControls: false),
+		]
+
+		for parts in cases {
+			let width = try bounds(parts.enclosure).size.x
+			for (model, direction, radius) in [(parts.bottom, -1.0, 1.65), (parts.top, 1.0, 2.1)] {
+				#expect(try model.shape.isValid)
+				#expect(try model.shape.subShapeCount(ofType: .solid) == 1)
+
+				for y in [-82.55, 82.55] {
+					// Only the four corner bolts are drilled; the middle of each flange is solid.
+					let center = mov(0, y, direction * 9)(box(1, 1, 1))
+					#expect(abs(try volume(model * center) - 1) < 1e-5)
+					for x in [-width / 2 + 6.35, width / 2 - 6.35] {
+						let hole = mov(x, y, direction * 7.5)(cylinder(20, radius))
+						#expect(try volume(model * hole) < 1e-5)
+						let ring = mov(x, y, direction * 2.5)(
+							cylinder(3, radius + 0.4) - cylinder(3, radius + 0.1)
+						)
+						#expect(abs(try volume(model * ring) - volume(ring)) < 1e-5)
+					}
+				}
+
+				// The recessed skin must not open through either long side wall.
+				for x in [-width / 2 + 7.1, width / 2 - 7.1] {
+					for y in [-55.0, -25.0, 25.0, 55.0] {
+						let wall = mov(x, y, direction * 9)(box(1, 1, 1))
+						#expect(abs(try volume(model * wall) - 1) < 1e-5)
+					}
+				}
+
+				// Pockets cross x=0; the horizontal rib and outer skin remain.
+				for y in [-38.1, 38.1] {
+					#expect(try volume(model * mov(0, y, direction * 9)(box(1, 1, 1))) < 1e-5)
+					#expect(abs(try volume(model * mov(0, y, direction * 14)(box(1, 1, 1))) - 1) < 1e-5)
+				}
+				#expect(abs(try volume(model * mov(0, 0, direction * 9)(box(1, 1, 1))) - 1) < 1e-5)
+			}
+		}
+	}
 }

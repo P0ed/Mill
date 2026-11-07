@@ -60,6 +60,10 @@ case remains 4.5″ wide. Panel input cannot be combined with `--modules`.
 The case keeps AGC's depth, construction, and M4 mounting holes; it does not
 use the four 3.2 mm mounting holes drawn in Panels' artwork.
 
+Both single-module versions use four corner bolts. Their internal pockets
+stay inside the side walls and retain only the horizontal center rib.
+Larger cases keep six bolts and both center ribs.
+
 Only visible cells produce cutouts and hardware. Hidden columns are ignored,
 and empty or artwork-only cells stay undrilled. All eight Panels control types
 are supported, including the three LEMO contact counts and a simplified NKK

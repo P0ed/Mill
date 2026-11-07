@@ -16,7 +16,10 @@ constructors for other hardware. Threads are `thread('M4', 3, location)` with
 Only bottom and top geometry is measured for enclosures, so display hardware
 randomness does not affect these references.
 
-The Swift tests compare volume and each bound within 0.001 mm³ / 0.001 mm.
+The Swift tests compare volume and each bound within 0.001 mm³ / 0.001 mm
+for unchanged geometry. The single-module enclosure now has four bolts,
+closed side walls, and no vertical center rib, so its construction is checked
+with geometry probes instead of the original enclosure volumes.
 The Python thread implementation approximates splines while the Swift port
 interpolates them, so thread tolerances allow for that numerical difference.
 
