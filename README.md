@@ -1,7 +1,6 @@
 # Mill
 
-A Swift port of [`../DIY`](https://github.com/P0ed/DIY)'s CadQuery enclosure project, built on
-[OCCTSwift 3.0.0](https://github.com/SecondMouseAU/OCCTSwift/tree/v3.0.0).
+A Swift port of [`../DIY`](https://github.com/P0ed/DIY), built on [OCCTSwift 3.0.0](https://github.com/SecondMouseAU/OCCTSwift/tree/v3.0.0).
 Includes the AGC case, connector and control models, V30 and tower knobs,
 ISO/UTS thread ridges, and STL, STEP, and three-view SVG export.
 
@@ -14,7 +13,7 @@ swift run mill "../Panels/Examples/Serge Prototype.panel" --output output
 swift test
 ```
 
-AGC generation requires a `.panel` file saved by [`../Panels`](../Panels).
+AGC generation requires a `.panel` file saved by [`../Panels`](https://github.com/P0ed/Panels).
 The document determines the case size, visible controls, knob angles, and
 toggle positions. CLI options control exports; there is no default layout or
 separate case-design configuration. Dimensions are in millimeters; public
@@ -82,8 +81,8 @@ try export("custom-top", parts.top)
 
 ## Composition
 
-The generic `•` operator replaces `com` and composes right to left. The `§`
-operator applies the composed function to its argument and rethrows errors:
+The generic `•` operator composes right to left. The `§` operator applies
+the composed function to its argument and rethrows errors:
 
 ```swift
 import Mill
@@ -108,25 +107,6 @@ combined with other models.
 ```swift
 let ridge = thread("M4", length: 10, location: .internal)
 ```
-
-## Source mapping
-
-| DIY | Mill |
-| --- | --- |
-| `lib/tools.py` | `Composition.swift`, constants in `Geometry.swift` |
-| `lib/ddd.py` | `Model.swift`, `Geometry.swift`, `Controls.swift` |
-| `lib/thread.py` | `Thread.swift` |
-| `lib/export.py` | `Export.swift` |
-| `agc.py` | `AGC.swift` |
-| `main.py` | `Sources/MillCLI/main.swift` |
-
-Swift APIs use camelCase (`threeView`, `knobV30`). `AGCParts` names
-the original positional results. `agc(panel:)` builds the case from a decoded
-Panels document. Thread curves retain the original dimensions, clearance and
-taper equations, using OCCTSwift spline interpolation and sewn ruled surfaces.
-SVGs use OCCT hidden-line removal with vector polylines at 0.02 mm deflection.
-The squircle helper uses the exact fifth-power diagonal instead of DIY's
-rounded sample boundary, removing tiny self-intersections at its mirrored seams.
 
 Tests cover composition order, centered primitives, edge selection, hardware,
 threads, both panel sizes, saved hardware positions, corner profiles, and export
