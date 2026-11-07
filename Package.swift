@@ -12,8 +12,15 @@ let package = Package(
 		.package(url: "https://github.com/SecondMouseAU/OCCTSwift.git", exact: "3.0.0"),
 	],
 	targets: [
-		.target(name: "Mill", dependencies: [.product(name: "OCCTSwift", package: "OCCTSwift")]),
+		.target(
+			name: "Mill",
+			dependencies: [.product(name: "OCCTSwift", package: "OCCTSwift")]
+		),
 		.executableTarget(name: "MillCLI", dependencies: ["Mill"]),
-		.testTarget(name: "MillTests", dependencies: ["Mill"], resources: [.copy("Fixtures")]),
+		.testTarget(
+			name: "MillTests",
+			dependencies: ["Mill"],
+			resources: [.copy("Fixtures")]
+		),
 	]
 )

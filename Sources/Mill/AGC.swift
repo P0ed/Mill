@@ -53,7 +53,8 @@ public func agc(
 
 /// Build an AGC enclosure using the size and visible controls saved by Panels.
 public func agc(
-	panel: PanelLayout, threads: Bool = false,
+	panel: PanelLayout,
+	threads: Bool = false,
 	includeControls: Bool = true,
 	controlAngle: Double? = nil
 ) throws -> AGCParts {
@@ -173,6 +174,7 @@ private func buildAGC(
 
 		section = rotz(180) • mov((col / 2 - w) / 2, (col * 3 / 2 - h) / 2) § cut
 	}
+
 	let parts = AGCParts(
 		bottom: mov(z: -t3 - pl)(bottom),
 		top: mov(z: t3 + pl)(top),
@@ -193,13 +195,13 @@ public func defaultAGC(
 	includeControls: Bool = true,
 	controlAngle: Double? = nil
 ) throws -> AGCParts {
-
 	let pots: (Int) -> Pattern = { _ in und(ptnBotM, ptnX) }
 
 	let toggles: (Int) -> Pattern = { m in
 		let pattern: Pattern = m == 1 ? ptnD : ptnW
 		return und(ptnBotM, pattern)
 	}
+
 	let chooseKnob: (Int) -> Knob = { m in
 		if m % 2 == 0 { return knobV30 }
 		return knobTower

@@ -44,27 +44,40 @@ public struct ThreadSpec: Sendable {
 
 public enum ThreadLocation: Sendable { case `internal`, external }
 
-public func thread(_ size: String, length: Double, location: ThreadLocation = .external,
-				   segments: Int = 48) -> Model {
+public func thread(
+	_ size: String,
+	length: Double,
+	location: ThreadLocation = .external,
+	segments: Int = 48
+) -> Model {
 	guard let spec = ThreadSpec.sizes[size] else {
 		return Model(build: { throw ModelError.invalidArgument("Unknown thread size: \(size)") })
 	}
+
 	return thread(spec, length: length, location: location, segments: segments)
 }
 
 /// Builds the original ISO/UTS helical ridge with tapered starts and ends.
 /// An internal ridge is added to a bore wall; an external ridge is added to a shaft.
-public func thread(_ spec: ThreadSpec, length: Double, location: ThreadLocation = .external,
-				   segments: Int = 48) -> Model {
+public func thread(
+	_ spec: ThreadSpec,
+	length: Double,
+	location: ThreadLocation = .external,
+	segments: Int = 48
+) -> Model {
 	let model = Model(build: {
 		guard length.isFinite, spec.pitch.isFinite, spec.nominal.isFinite,
-			  length > 0, spec.pitch > 0, spec.minorDiameter > 0, segments >= 8 else {
-			throw ModelError.invalidArgument("Thread requires positive length, pitch, minor diameter and at least 8 segments per turn.")
+			length > 0, spec.pitch > 0, spec.minorDiameter > 0, segments >= 8
+		else {
+			throw ModelError.invalidArgument(
+				"Thread requires positive length, pitch, minor diameter and at least 8 segments per turn."
+			)
 		}
 		let sampleCount = length / spec.pitch * Double(segments)
 		guard sampleCount >= 2, sampleCount <= 100_000 else {
 			throw ModelError.invalidArgument("Thread sample count must be between 2 and 100000.")
 		}
+
 		let pitch = spec.pitch, epsilon = max(pitch / 10, 0.025)
 		let ext = location == .external
 		let radius = ext ? spec.minorDiameter / 2 - epsilon : spec.majorDiameter / 2 + epsilon
@@ -72,20 +85,27 @@ public func thread(_ spec: ThreadSpec, length: Double, location: ThreadLocation 
 		let h2 = pitch * (ext ? 1 / 8.0 : 1 / 4.0) / 2
 		let cut = spec.veeHeight * 5 / 8 * (ext ? 1 : -1)
 		let count = Int(sampleCount)
+
 		func helix(_ depth: Double, _ offset: Double) throws -> Wire {
 			let fraction = 0.685 * pitch / length
 			let points = (0...count).map { i -> SIMD3<Double> in
 				let t = Double(i) / Double(count)
 				let factor: Double
-				if t <= fraction { factor = sin(.pi / 2 * t / fraction) }
-				else if t >= 1 - fraction { factor = -sin(2 * .pi - .pi / 2 * (1 - t) / fraction) }
-				else { factor = 1 }
+				if t <= fraction {
+					factor = sin(.pi / 2 * t / fraction)
+				} else if t >= 1 - fraction {
+					factor = -sin(2 * .pi - .pi / 2 * (1 - t) / fraction)
+				} else {
+					factor = 1
+				}
+
 				let r = radius + depth * factor
 				let angle = 2 * .pi * length / pitch * t
 				return SIMD3(-r * sin(angle), r * cos(angle), length * t + offset * factor)
 			}
 			return try require(Wire.interpolate(through: points), "thread helix")
 		}
+
 		let e1b = try helix(0, -h1), e1t = try helix(0, h1)
 		let e2b = try helix(cut, -h2), e2t = try helix(cut, h2)
 		let faces = try [(e1b, e1t), (e2b, e2t), (e1b, e2b), (e1t, e2t)].map {
@@ -95,5 +115,6 @@ public func thread(_ spec: ThreadSpec, length: Double, location: ThreadLocation 
 		let solid = try require(Shape.solid(from: shell), "thread solid")
 		return try require(solid.healed(), "thread healing")
 	})
+
 	return location == .external ? rotz(180)(model) : model
 }

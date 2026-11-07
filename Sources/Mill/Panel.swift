@@ -5,6 +5,7 @@ import Foundation
 public struct PanelLayout: Decodable, Sendable {
 	public enum Size: String, Decodable, Sendable {
 		case fourBySix, eightBySix
+
 		public var columns: Int { self == .fourBySix ? 4 : 8 }
 		public var width: Double { self == .fourBySix ? 107.95 : 215.9 }
 		public var height: Double { 177.8 }
@@ -27,16 +28,19 @@ public struct PanelLayout: Decodable, Sendable {
 
 	public struct Cell: Decodable, Sendable {
 		public enum TogglePosition: String, Decodable, Sendable { case up, down }
+
 		public let control: Control?
 		public let knobAngle: Double
 		public let togglePosition: TogglePosition
 
 		private enum CodingKeys: String, CodingKey { case control, knobAngle, togglePosition }
+
 		public init(from decoder: Decoder) throws {
 			let values = try decoder.container(keyedBy: CodingKeys.self)
 			control = try values.decodeIfPresent(Control.self, forKey: .control)
 			knobAngle = try values.decode(Double.self, forKey: .knobAngle)
 			togglePosition = try values.decode(TogglePosition.self, forKey: .togglePosition)
+
 			guard knobAngle.isFinite, (-150...150).contains(knobAngle) else {
 				throw ModelError.invalidArgument("A panel knob angle must be between -150 and 150 degrees.")
 			}
@@ -44,21 +48,26 @@ public struct PanelLayout: Decodable, Sendable {
 	}
 
 	public let size: Size
+
 	/// Row-major slots with a stride of eight, even for a four-column panel.
 	public let cells: [Cell]
 	public var modules: Int { size.columns / 4 }
 
 	private enum CodingKeys: String, CodingKey { case version, size, cells }
+
 	public init(from decoder: Decoder) throws {
 		let values = try decoder.container(keyedBy: CodingKeys.self)
 		let version = try values.decode(Int.self, forKey: .version)
 		guard version == 1 else {
 			throw ModelError.invalidArgument("Unsupported Panels file version \(version); expected version 1.")
 		}
+
 		size = try values.decode(Size.self, forKey: .size)
 		cells = try values.decode([Cell].self, forKey: .cells)
 		guard cells.count == 48 else {
-			throw ModelError.invalidArgument("A Panels file must contain 48 stored cell slots; found \(cells.count).")
+			throw ModelError.invalidArgument(
+				"A Panels file must contain 48 stored cell slots; found \(cells.count)."
+			)
 		}
 	}
 
@@ -91,6 +100,7 @@ public struct PanelLayout: Decodable, Sendable {
 	func controls(angle: Double?) -> Model {
 		models { cell in
 			guard let control = cell.control else { return nil }
+
 			switch control {
 			case .lemo1B302: return lemoECG1B302()
 			case .lemo1B303: return lemoECG1B303()

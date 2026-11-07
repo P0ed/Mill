@@ -10,12 +10,15 @@ public let in8 = inch / 8
 public let inX = inch / 16
 
 public typealias Pattern = @Sendable (Int, Int) -> Bool
+
 public func und(_ l: @escaping Pattern, _ r: @escaping Pattern) -> Pattern {
 	{ l($0, $1) && r($0, $1) }
 }
+
 public func oder(_ l: @escaping Pattern, _ r: @escaping Pattern) -> Pattern {
 	{ l($0, $1) || r($0, $1) }
 }
+
 public func nicht(_ pattern: @escaping Pattern) -> Pattern { { !pattern($0, $1) } }
 
 public let ptnAll: Pattern = { _, _ in true }
@@ -31,8 +34,11 @@ public let ptnM: Pattern = { x, y in !(y % 3 == 2 && (x == 0 || x == 3)) }
 public let ptnTopL: Pattern = { x, y in x == 0 && y == 5 }
 public let ptnTopR: Pattern = { x, y in x == 3 && y == 5 }
 
-public func ptnMap<A>(_ yes: @escaping () -> A, _ pattern: @escaping Pattern,
-					  _ no: @escaping () -> A) -> (Int, Int) -> A {
+public func ptnMap<A>(
+	_ yes: @escaping () -> A,
+	_ pattern: @escaping Pattern,
+	_ no: @escaping () -> A
+) -> (Int, Int) -> A {
 	{ pattern($0, $1) ? yes() : no() }
 }
 

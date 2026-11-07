@@ -31,6 +31,7 @@ public struct Model: Sendable {
 	}
 
 	init(build: () throws -> Shape?) { result = Result(catching: build) }
+
 	public static var empty: Model { Model(build: { nil }) }
 
 	public var shape: Shape {
@@ -55,19 +56,26 @@ public struct Model: Sendable {
 
 	public func chamfer(_ distance: Double, edges: EdgeSelection = .all) -> Model {
 		transformed("chamfer distance \(distance) on \(edges)") { shape in
-			shape.chamferedWithFullHistory(distance: distance,
-										   edges: edges.select(in: shape).map(\.index))?.result
+			shape.chamferedWithFullHistory(
+				distance: distance,
+				edges: edges.select(in: shape).map(\.index)
+			)?.result
 		}
 	}
 }
 
-private func boolean(_ lhs: Model, _ rhs: Model, _ operation: String,
-					 empty: (Shape?, Shape?) -> Shape?,
-					 combine: (Shape, Shape) -> Shape?) -> Model {
+private func boolean(
+	_ lhs: Model,
+	_ rhs: Model,
+	_ operation: String,
+	empty: (Shape?, Shape?) -> Shape?,
+	combine: (Shape, Shape) -> Shape?
+) -> Model {
 	Model(build: {
 		let l = try lhs.result.get(), r = try rhs.result.get()
 		guard let l, let r else { return empty(l, r) }
 		let combined = try require(combine(l, r), operation)
+
 		// CadQuery cleans same-domain faces after each boolean, before edge selection.
 		return try require(combined.unified(), "\(operation) cleanup")
 	})
@@ -76,17 +84,22 @@ private func boolean(_ lhs: Model, _ rhs: Model, _ operation: String,
 public func + (lhs: Model, rhs: Model) -> Model {
 	boolean(lhs, rhs, "union", empty: { $0 ?? $1 }, combine: { $0.union($1) })
 }
+
 public func - (lhs: Model, rhs: Model) -> Model {
 	boolean(lhs, rhs, "subtraction", empty: { l, _ in l }, combine: { $0.subtracting($1) })
 }
+
 public func * (lhs: Model, rhs: Model) -> Model {
 	boolean(lhs, rhs, "intersection", empty: { _, _ in nil }, combine: { $0.intersection($1) })
 }
+
 public func sum(_ models: [Model]) -> Model { models.reduce(.empty, +) }
+
 public func dif(_ models: [Model]) -> Model {
 	guard let first = models.first else { return .empty }
 	return models.dropFirst().reduce(first, -)
 }
+
 public func compound(_ models: [Model]) -> Model {
 	Model(build: {
 		let shapes = try models.compactMap { try $0.result.get() }
@@ -96,6 +109,7 @@ public func compound(_ models: [Model]) -> Model {
 
 public enum Axis: Int, Sendable {
 	case x, y, z
+
 	var vector: SIMD3<Double> {
 		var v = SIMD3<Double>.zero
 		v[rawValue] = 1
@@ -116,8 +130,11 @@ public enum EdgeSelection: Sendable {
 			return all.filter { !parallel.contains($0.index) }
 		case .positive(let axis):
 			return all.filter { edge in
-				guard edge.isLine, let range = edge.parameterBounds,
-					  let tangent = edge.tangent(at: (range.first + range.last) / 2) else { return false }
+				guard edge.isLine,
+					let range = edge.parameterBounds,
+					let tangent = edge.tangent(at: (range.first + range.last) / 2)
+				else { return false }
+
 				return simd_dot(simd_normalize(tangent), axis.vector) > 1 - 1e-6
 			}
 		case .minimum(let axis), .maximum(let axis):
@@ -127,7 +144,11 @@ public enum EdgeSelection: Sendable {
 			}
 			let coordinates = centers.map(\.1)
 			let extreme: Double?
-			if case .minimum = self { extreme = coordinates.min() } else { extreme = coordinates.max() }
+			if case .minimum = self {
+				extreme = coordinates.min()
+			} else {
+				extreme = coordinates.max()
+			}
 			guard let extreme else { return [] }
 			return centers.filter { abs($0.1 - extreme) < 1e-6 }.map(\.0)
 		}
