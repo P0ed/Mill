@@ -131,9 +131,9 @@ private func buildAGC(
 	let topCutouts = panel?.cutouts(t2) ?? module { m in
 		grid(ptnsMap(
 			(m == 0 ? ptnTopL : ptnTopR, { lemo1BCutout(t2) }),
-			(und(ptnTop, ptnM), { pomona1581Cutout(t2) }),
+			(ptnTop && ptnM, { pomona1581Cutout(t2) }),
 			(potsPattern(m), { cylinder(t2, 9.55 / 2) }),
-			(und(ptnBot, ptnM), { cylinder(t2, 6.35 / 2) })
+			(ptnBot && ptnM, { cylinder(t2, 6.35 / 2) })
 		))
 	}
 
@@ -195,11 +195,11 @@ public func defaultAGC(
 	includeControls: Bool = true,
 	controlAngle: Double? = nil
 ) throws -> AGCParts {
-	let pots: (Int) -> Pattern = { _ in und(ptnBotM, ptnX) }
+	let pots: (Int) -> Pattern = { _ in ptnBotM && ptnX }
 
 	let toggles: (Int) -> Pattern = { m in
 		let pattern: Pattern = m == 1 ? ptnD : ptnW
-		return und(ptnBotM, pattern)
+		return ptnBotM && pattern
 	}
 
 	let chooseKnob: (Int) -> Knob = { m in

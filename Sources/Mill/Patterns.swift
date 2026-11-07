@@ -11,15 +11,15 @@ public let inX = inch / 16
 
 public typealias Pattern = @Sendable (Int, Int) -> Bool
 
-public func und(_ l: @escaping Pattern, _ r: @escaping Pattern) -> Pattern {
-	{ l($0, $1) && r($0, $1) }
+public func && (lhs: @escaping Pattern, rhs: @escaping Pattern) -> Pattern {
+	{ lhs($0, $1) && rhs($0, $1) }
 }
 
-public func oder(_ l: @escaping Pattern, _ r: @escaping Pattern) -> Pattern {
-	{ l($0, $1) || r($0, $1) }
+public func || (lhs: @escaping Pattern, rhs: @escaping Pattern) -> Pattern {
+	{ lhs($0, $1) || rhs($0, $1) }
 }
 
-public func nicht(_ pattern: @escaping Pattern) -> Pattern { { !pattern($0, $1) } }
+public prefix func ! (pattern: @escaping Pattern) -> Pattern { { !pattern($0, $1) } }
 
 public let ptnAll: Pattern = { _, _ in true }
 public let ptnTop: Pattern = { _, y in y > 2 }
@@ -27,7 +27,7 @@ public let ptnBot: Pattern = { _, y in y < 3 }
 public let ptnMdx: Pattern = { x, _ in x > 0 && x < 3 }
 public let ptnX: Pattern = { x, y in (x + y % 2 + x / 2) % 2 == 0 }
 public let ptnD: Pattern = { x, y in (x + y % 2 + x / 2) % 2 == 1 }
-public let ptnW: Pattern = und(ptnD, { _, y in y < 2 })
+public let ptnW: Pattern = ptnD && { _, y in y < 2 }
 public let ptnTopM: Pattern = { x, y in y > 2 && !(y % 3 == 2 && (x == 0 || x == 3)) }
 public let ptnBotM: Pattern = { x, y in y < 3 && !(y % 3 == 2 && (x == 0 || x == 3)) }
 public let ptnM: Pattern = { x, y in !(y % 3 == 2 && (x == 0 || x == 3)) }

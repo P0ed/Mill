@@ -107,14 +107,18 @@ an empty model, which can be combined with other models.
 ```swift
 let parts = try agc(
     modules: 2,
-    potsPattern: { _ in und(ptnBotM, ptnX) },
-    togglesPattern: { _ in und(ptnBotM, ptnD) },
+    potsPattern: { _ in ptnBotM && ptnX },
+    togglesPattern: { _ in ptnBotM && ptnD },
     knobs: { _ in knobTower },
     controlAngle: 0
 )
 try export("custom-top", parts.top)
 let ridge = thread("M4", length: 10, location: .internal)
 ```
+
+Combine `Pattern` values with `&&`, `||`, and prefix `!`, using normal Boolean
+precedence: `ptnTop && !ptnTopL || ptnBotM`. The resulting pattern evaluates
+its operands at each grid cell, with `&&` and `||` short-circuiting that evaluation.
 
 ## Source mapping
 
