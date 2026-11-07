@@ -1,0 +1,440 @@
+{
+  "version": 1,
+  "size": "eightBySix",
+  "title": "SMOOTH & STEPPED GENERATOR",
+  "finish": "enamel",
+  "cells": [
+    {
+      "control": "lemo1B303",
+      "caption": "BAL. IN",
+      "color": "black",
+      "frame": "rectangle",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "CV IN",
+      "color": "white",
+      "frame": "rectangle",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "bourns51",
+      "caption": "RISE",
+      "color": "black",
+      "frame": "arch",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "START",
+      "color": "red",
+      "frame": "peak",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "vccCLB300",
+      "caption": "END",
+      "color": "amber",
+      "frame": "none",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "TRIGGER",
+      "color": "white",
+      "frame": "rectangle",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "nkkMN12",
+      "caption": "MODE",
+      "color": "black",
+      "frame": "diamond",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "OUT",
+      "color": "black",
+      "frame": "diamond",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "DURATION",
+      "color": "white",
+      "frame": "rectangle",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "CYCLE",
+      "color": "red",
+      "frame": "peak",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "nkkMBNF15",
+      "caption": "RESET",
+      "color": "black",
+      "frame": "peak",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "nkkMN12",
+      "caption": "RANGE",
+      "color": "black",
+      "frame": "diamond",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "SMOOTH",
+      "color": "black",
+      "frame": "diamond",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "bourns51",
+      "caption": "WINDOW",
+      "color": "black",
+      "frame": "arch",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "VC RISE",
+      "color": "white",
+      "frame": "rectangle",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "HOLD",
+      "color": "red",
+      "frame": "peak",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "bourns51",
+      "caption": "FALL",
+      "color": "black",
+      "frame": "arch",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "SUSTAIN",
+      "color": "red",
+      "frame": "peak",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "VC FALL",
+      "color": "white",
+      "frame": "rectangle",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "bourns51",
+      "caption": "OFFSET",
+      "color": "black",
+      "frame": "arch",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "vccCLB300",
+      "caption": "PULSE",
+      "color": "amber",
+      "frame": "none",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "SAMPLE",
+      "color": "white",
+      "frame": "rectangle",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "STEPPED",
+      "color": "black",
+      "frame": "diamond",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "bourns51",
+      "caption": "RATE",
+      "color": "black",
+      "frame": "arch",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "lemo1B302",
+      "caption": "IN",
+      "color": "black",
+      "frame": "rectangle",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "START",
+      "color": "red",
+      "frame": "peak",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "bourns51",
+      "caption": "LEVEL",
+      "color": "black",
+      "frame": "arch",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "CYCLE",
+      "color": "red",
+      "frame": "peak",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "HOLD",
+      "color": "red",
+      "frame": "peak",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "CV IN",
+      "color": "white",
+      "frame": "rectangle",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "nkkMN12",
+      "caption": "COUPLE",
+      "color": "black",
+      "frame": "diamond",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "lemo1B303",
+      "caption": "BAL. OUT",
+      "color": "black",
+      "frame": "rectangle",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "bourns51",
+      "caption": "RISE",
+      "color": "black",
+      "frame": "arch",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "SAMPLE",
+      "color": "red",
+      "frame": "peak",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "LOG",
+      "color": "white",
+      "frame": "rectangle",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "nkkMBNF15",
+      "caption": "TRIGGER",
+      "color": "black",
+      "frame": "peak",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "OUT",
+      "color": "black",
+      "frame": "diamond",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "bourns51",
+      "caption": "GAIN",
+      "color": "black",
+      "frame": "arch",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "LIN",
+      "color": "white",
+      "frame": "rectangle",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "vccCLB300",
+      "caption": "ACTIVE",
+      "color": "amber",
+      "frame": "none",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "bourns51",
+      "caption": "FALL",
+      "color": "black",
+      "frame": "arch",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "SUSTAIN",
+      "color": "red",
+      "frame": "triangle",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "MOD",
+      "color": "black",
+      "frame": "cross",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "SIZE",
+      "color": "white",
+      "frame": "angle",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "bourns51",
+      "caption": "DURATION",
+      "color": "black",
+      "frame": "arch",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "pomona1581",
+      "caption": "END",
+      "color": "red",
+      "frame": "peak",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "bourns51",
+      "caption": "OFFSET",
+      "color": "black",
+      "frame": "arch",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    },
+    {
+      "control": "lemo1B304",
+      "caption": "OUT",
+      "color": "black",
+      "frame": "diamond",
+      "frameRotation": 0,
+      "knobAngle": 35,
+      "togglePosition": "up"
+    }
+  ]
+}

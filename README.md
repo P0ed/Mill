@@ -43,6 +43,42 @@ As in DIY, `--threads` adds a section illustration; the case's mounting holes
 remain tap-drilled. The port is a library and headless CLI; view the exported
 files in a CAD viewer instead of Python's `ocp_vscode.show`.
 
+## Panels input
+
+Pass a `.panel` document saved by [`../Panels`](../Panels) to use its visible
+control layout:
+
+```sh
+swift run mill "../Panels/Examples/Serge Prototype.panel" --output output
+swift run mill --panel "../Panels/Examples/Serge Prototype.panel" --case-only --output output
+```
+
+Version 1 documents support both panel sizes: 4 × 6 produces a 107.95 × 177.8 mm
+case (`AGC-1M`), and 8 × 6 produces a 215.9 × 177.8 mm case (`AGC-2M`).
+The four-column case matches Panels' 4.25″ width; the original `--modules 1`
+case remains 4.5″ wide. Panel input cannot be combined with `--modules`.
+The case keeps AGC's depth, construction, and M4 mounting holes; it does not
+use the four 3.2 mm mounting holes drawn in Panels' artwork.
+
+Only visible cells produce cutouts and hardware. Hidden columns are ignored,
+and empty or artwork-only cells stay undrilled. All eight Panels control types
+are supported, including the three LEMO contact counts and a simplified NKK
+MBNF15 pushbutton model. The button uses the round-bushing 6.5 mm hole from
+[NKK's panel cutout drawing](https://www.nkkswitches.com/pdf/MBN_PushbuttonSections_DP.pdf).
+Potentiometers use V30 knobs with their saved angles; toggle levers follow
+their saved positions. Nut angles default to zero. `--angle` overrides knob,
+shaft, and nut angles; toggles keep their saved positions.
+Captions, frames, colors, title, and finish do not affect the CAD geometry.
+The existing export options and filenames apply.
+
+The same input is available through the library:
+
+```swift
+let panel = try PanelLayout(contentsOf: URL(fileURLWithPath: "My Module.panel"))
+let parts = try agc(panel: panel, includeControls: false)
+try export("custom-top", parts.top)
+```
+
 ## Composition
 
 The generic `•` operator replaces `com` and composes right to left. The `§`

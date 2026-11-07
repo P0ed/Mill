@@ -1,5 +1,9 @@
 # DIY reference geometry
 
+`serge-prototype.panel` is a copy of `../Panels/Examples/Serge Prototype.panel`.
+It exercises version 1 document compatibility and all eight control identifiers
+without requiring the sibling repository when running Mill's tests.
+
 `diy-metrics.json` was measured from the unmodified Python source in `../DIY`,
 commit `37716f394d270c0f642d5222ae4ba18ec40c7f61`, using CadQuery 2.5.2 and
 cadquery-ocp 7.7.2 on macOS arm64. Bounds are `[xmin, ymin, zmin, xmax, ymax, zmax]`

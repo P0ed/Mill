@@ -9,9 +9,11 @@ struct Options {
 	var svg = true
 	var hidden = false
 	var angle: Double?
+	var panel: URL?
 
 	static let help = """
-	Usage: mill [options]
+	Usage: mill [FILE.panel] [options]
+	  --panel PATH      Build from a Panels document (also accepted as FILE.panel)
 	  --modules 1,2,3   Module counts to generate (default: 2)
 	  --output PATH     Output directory (default: current directory)
 	  --threads         Export the M4 thread section drawing, AGC-01T.svg
@@ -22,10 +24,21 @@ struct Options {
 	  --help            Show this help
 
 	Writes STL/, STEP/, and SVG/ subdirectories using DIY's filenames.
+	Panel input determines the case size and control layout; cannot be combined with --modules.
+	Saved knob angles and toggle positions are used for panel input; --angle overrides knob/nut angles.
 	"""
 
 	init(_ arguments: [String]) throws {
 		var i = 0
+		var hasModules = false
+		func setPanel(_ path: String) throws {
+			guard panel == nil else { throw ModelError.invalidArgument("Pass only one .panel file.") }
+			let url = URL(fileURLWithPath: path)
+			guard url.pathExtension.lowercased() == "panel" else {
+				throw ModelError.invalidArgument("Panel input must be a .panel file.")
+			}
+			panel = url
+		}
 		func value(_ flag: String) throws -> String {
 			i += 1
 			guard i < arguments.count else { throw ModelError.invalidArgument("Missing value for \(flag).") }
@@ -35,6 +48,7 @@ struct Options {
 			let flag = arguments[i]
 			switch flag {
 			case "--modules":
+				hasModules = true
 				let text = try value(flag)
 				let values = text.split(separator: ",", omittingEmptySubsequences: false)
 				let parsed = values.compactMap { Int($0) }
@@ -43,6 +57,7 @@ struct Options {
 				}
 				var seen = Set<Int>()
 				modules = parsed.filter { seen.insert($0).inserted }
+			case "--panel": try setPanel(value(flag))
 			case "--output": output = URL(fileURLWithPath: try value(flag), isDirectory: true)
 			case "--threads": threads = true
 			case "--case-only": controls = false
@@ -53,18 +68,34 @@ struct Options {
 					throw ModelError.invalidArgument("--angle requires a finite number of degrees.")
 				}
 				angle = number
-			default: throw ModelError.invalidArgument("Unknown option: \(flag). Use --help for usage.")
+			default:
+				if !flag.hasPrefix("-") {
+					try setPanel(flag)
+				} else {
+					throw ModelError.invalidArgument("Unknown option: \(flag). Use --help for usage.")
+				}
 			}
 			i += 1
+		}
+		guard panel == nil || !hasModules else {
+			throw ModelError.invalidArgument("Panel input cannot be combined with --modules; the panel determines the case size.")
 		}
 	}
 }
 
 func run(_ options: Options) throws {
-	for (index, modules) in options.modules.enumerated() {
+	let panel = try options.panel.map { try PanelLayout(contentsOf: $0) }
+	let moduleCounts = panel.map { [$0.modules] } ?? options.modules
+	for (index, modules) in moduleCounts.enumerated() {
 		print("Building AGC-\(modules)M…")
-		let parts = try defaultAGC(modules: modules, threads: options.threads && index == 0,
-								   includeControls: options.controls, controlAngle: options.angle)
+		let parts: AGCParts
+		if let panel {
+			parts = try agc(panel: panel, threads: options.threads,
+							includeControls: options.controls, controlAngle: options.angle)
+		} else {
+			parts = try defaultAGC(modules: modules, threads: options.threads && index == 0,
+									   includeControls: options.controls, controlAngle: options.angle)
+		}
 		let name = "AGC-\(modules)M"
 		for (suffix, model) in [("01", parts.bottom), ("10", parts.top)] {
 			print("Exporting \(name)-\(suffix)…")

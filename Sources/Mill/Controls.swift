@@ -19,9 +19,12 @@ public func lemoM12RoundNut() -> Model {
 	mov(z: 2.5 / 2)(cylinder(2.5, 16 / 2).chamfer(1, edges: .maximum(.z)))
 	- (rotz(45) • mirror(.xz, .yz) • rotz(-45) • mov(7) § box(1.4, 1.5, 5))
 }
-public func lemoECG1B303() -> Model {
-	let pins = (0..<3).map { i in
-		mov(z: 1.5) • rotz(120 * Double(i)) • mov(2) § cylinder(3, 0.5)
+public func lemoECG1B302() -> Model { lemoECG1B(contacts: 2) }
+public func lemoECG1B303() -> Model { lemoECG1B(contacts: 3) }
+public func lemoECG1B304() -> Model { lemoECG1B(contacts: 4) }
+private func lemoECG1B(contacts: Int) -> Model {
+	let pins = (0..<contacts).map { i in
+		mov(z: 1.5) • rotz(360 / Double(contacts) * Double(i)) • mov(2) § cylinder(3, 0.5)
 	}
 	let face = dif([cylinder(3.5, 12 / 2)] + pins).chamfer(0.25, edges: .maximum(.z))
 	let groove = mov(z: 1.5)(cylinder(3, 7.75 / 2) - cylinder(3, 6.25 / 2))
@@ -38,6 +41,12 @@ public func toggle(_ position: Bool? = nil, nutAngle: Double? = nil) -> Model {
 	+ (mov(0, pos ? -1.7 : 1.7, 9) • rotx(pos ? 13 : -13) §
 	   rotz(90)(cylinder(14, 1.3).fillet(1.299)))
 	+ hexNut(8.5, 1.5, angle: nutAngle)
+}
+/// Simplified visible model of the NKK MBNF15 with a round 8 mm cap.
+public func pushbutton(nutAngle: Double? = nil) -> Model {
+	mov(z: 2.5)(cylinder(5, 3))
+	+ mov(z: 6)(cylinder(3, 4).fillet(0.5, edges: .maximum(.z)))
+	+ hexNut(9.8, 1.5, angle: nutAngle)
 }
 public func bourns51(_ angle: Double? = nil, nutAngle: Double? = nil) -> Model {
 	let angle = angle ?? Double.random(in: -60...60)

@@ -14,7 +14,7 @@ public struct AGCParts: Sendable {
 
 public struct AGCDimensions: Sendable {
 	public let modules: Int
-	public var width: Double { Double(modules) * 4 * inch + 0.5 * inch }
+	public let width: Double
 	public let height = 7 * inch
 	public let depth = 30.0
 	public let wall = 3.0
@@ -23,6 +23,12 @@ public struct AGCDimensions: Sendable {
 	public init(modules: Int) throws {
 		guard modules > 0 else { throw ModelError.invalidArgument("Module count must be positive.") }
 		self.modules = modules
+		width = Double(modules) * 4 * inch + 0.5 * inch
+	}
+
+	public init(panel: PanelLayout) {
+		modules = panel.modules
+		width = panel.size.width
 	}
 }
 
@@ -36,6 +42,28 @@ public func agc(
 	controlAngle: Double? = nil
 ) throws -> AGCParts {
 	let dimensions = try AGCDimensions(modules: modules)
+	return try buildAGC(dimensions: dimensions, potsPattern: potsPattern, togglesPattern: togglesPattern,
+						knobs: knobs, threads: threads, includeControls: includeControls, controlAngle: controlAngle)
+}
+
+/// Build an AGC enclosure using the size and visible controls saved by Panels.
+public func agc(panel: PanelLayout, threads: Bool = false,
+				includeControls: Bool = true, controlAngle: Double? = nil) throws -> AGCParts {
+	try buildAGC(dimensions: AGCDimensions(panel: panel), panel: panel,
+				 threads: threads, includeControls: includeControls, controlAngle: controlAngle)
+}
+
+private func buildAGC(
+	dimensions: AGCDimensions,
+	panel: PanelLayout? = nil,
+	potsPattern: (Int) -> Pattern = { _ in ptnX },
+	togglesPattern: (Int) -> Pattern = { _ in ptnD },
+	knobs: (Int) -> Knob = { _ in knobV30 },
+	threads: Bool,
+	includeControls: Bool,
+	controlAngle: Double?
+) throws -> AGCParts {
+	let modules = dimensions.modules
 	let m4xr = 4.2 / 2, m4dr = 3.3 / 2, wt = dimensions.wall
 	let cw = 4 * inch, ch = 6 * inch, col = dimensions.column, hol = col / 2
 	let w = dimensions.width, h = dimensions.height, t = dimensions.depth
@@ -70,7 +98,7 @@ public func agc(
 	}
 
 	let bottom = brick(1) - holes(w / 2 - hol, h / 2 - hol, t2, m4dr) - holes(0, h / 2 - hol, t2, m4dr)
-	let topCutouts = module { m in
+	let topCutouts = panel?.cutouts(t2) ?? module { m in
 		grid(ptnsMap(
 			(m == 0 ? ptnTopL : ptnTopR, { lemo1BCutout(t2) }),
 			(und(ptnTop, ptnM), { pomona1581Cutout(t2) }),
@@ -83,7 +111,7 @@ public func agc(
 	_ = try bottom.shape
 	_ = try top.shape
 
-	let controls = includeControls ? module { m in
+	let controls = includeControls ? (panel?.controls(angle: controlAngle) ?? module { m in
 		grid(ptnsMap(
 			(m == 0 ? ptnTopL : ptnTopR, lemoECG1B303),
 			(ptnTopM, pomona1581),
@@ -91,11 +119,11 @@ public func agc(
 			(togglesPattern(m), { toggle(controlAngle.map { $0 >= 0 }, nutAngle: controlAngle) }),
 			(ptnM, clb300)
 		))
-	} : .empty
-	let extra = includeControls ? module { m in
+	}) : .empty
+	let extra = includeControls ? (panel?.knobs(angle: controlAngle) ?? module { m in
 		let knob = knobs(m)
 		return grid(ptnsMap((potsPattern(m), { knob(controlAngle) })))
-	} : .empty
+	}) : .empty
 
 	var section: Model?
 	if threads {
