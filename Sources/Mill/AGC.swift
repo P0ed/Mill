@@ -99,9 +99,10 @@ private func buildAGC(
 	}
 
 	func brick(_ direction: Double) -> Model {
+		let cavityWidth = (w - col) / Double(modules) - col
 		let cavity = module { _ in
-			boxFC((w - col) / Double(modules) - col, h - wt * 2, t2)
-				+ box(cw - col + crh * 2 + 1, ch + crh * 2 + 1, t2)
+			boxFC(cavityWidth, h - wt * 2, t2)
+				+ box(cavityWidth + crh * 2 + 1, ch + crh * 2 + 1, t2)
 					.chamfer(crh + 1, edges: .parallel(.z)).chamfer(c2, edges: .notParallel(.z))
 		}
 
@@ -130,7 +131,7 @@ private func buildAGC(
 				§ box(col, h + t, dt * 2 + pl).chamfer(c2),
 
 			mirror(.yz, .xz)
-				• mov(Double(modules) * cw / 2, ch / 2, (pl / 2 - t3) * direction)
+				• mov((w - col) / 2, ch / 2, (pl / 2 - t3) * direction)
 				• rotz(45)
 				§ box(crh * s2, t, dt * 2 + pl).chamfer(c2),
 		])

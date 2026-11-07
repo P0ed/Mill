@@ -185,4 +185,32 @@ struct PanelTests {
 			}
 		}
 	}
+
+	@Test(arguments: ["fourBySix", "eightBySix"])
+	func cornerProfiles(_ size: String) throws {
+		let panel = try PanelLayout.decode(document(size: size))
+		let parts = try agc(panel: panel, includeControls: false)
+		let stepX = panel.size.width / 2 - 6.35
+		let innerX = panel.size.width / 2 - 12.7
+		let cornerCut = (2 - s2) * 6.35
+		let innerY = 76.2 + cornerCut + 0.5
+
+		for (model, direction) in [(parts.bottom, -1.0), (parts.top, 1.0)] {
+			for sx in [-1.0, 1.0] {
+				for sy in [-1.0, 1.0] {
+					// The raised step has a diagonal corner at every actual case width.
+					let clipped = mov(sx * (stepX - cornerCut / 4), sy * (76.2 - cornerCut / 4), direction * 14)(box(0.5, 0.5, 0.5))
+					let retained = mov(sx * (stepX - cornerCut), sy * (76.2 - cornerCut), direction * 14)(box(0.5, 0.5, 0.5))
+					#expect(try volume(model * clipped) < 1e-5)
+					#expect(abs(try volume(model * retained) - 0.125) < 1e-5)
+
+					// The cavity follows a diagonal directly into its end rail, without a square jog.
+					let wall = mov(sx * (innerX + 0.8), sy * (innerY - 0.8), direction * 2.5)(box(0.25, 0.25, 0.25))
+					let cavity = mov(sx * (innerX + 0.8), sy * (innerY - 2), direction * 2.5)(box(0.25, 0.25, 0.25))
+					#expect(abs(try volume(model * wall) - 0.015625) < 1e-5)
+					#expect(try volume(model * cavity) < 1e-5)
+				}
+			}
+		}
+	}
 }
