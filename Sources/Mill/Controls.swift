@@ -100,8 +100,6 @@ public func clb300() -> Model {
 	return rotz(90)(mov(z: 0.9)(lens) + cylinder(1.8, 7.11 / 2))
 }
 
-public typealias Knob = (Double?) -> Model
-
 public func mkKnob(_ angle: Double?, _ c: Double, _ transform: @escaping Transform) -> Model {
 	let body = rotz(90)(cylinder(in2, in4).chamfer(c, edges: .maximum(.z)))
 		- mov(z: 3 - 9.499 / 2)(cylinder(9.5, in8))

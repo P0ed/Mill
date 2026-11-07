@@ -1,6 +1,15 @@
 import Foundation
 import OCCTSwift
 
+public let pl = 0.001
+public let s2 = sqrt(2.0)
+public let s22 = s2 / 2
+public let inch = 25.4
+public let in2 = inch / 2
+public let in4 = inch / 4
+public let in8 = inch / 8
+public let inX = inch / 16
+
 public typealias Transform = (Model) -> Model
 
 public enum Plane: Sendable {
@@ -114,28 +123,6 @@ public func squircle(_ w: Double, _ h: Double, _ r: Double) -> Wire? {
 	}
 
 	return Wire.polygon(unique)
-}
-
-private func grid(columns: Int, _ transform: (Int, Int) -> Model?) -> Model {
-	sum((0..<columns).flatMap { x in
-		(0..<6).compactMap { y in
-			transform(x, y).map(mov(
-				(Double(x) - Double(columns - 1) / 2) * inch,
-				(Double(y) - 2.5) * inch
-			))
-		}
-	})
-}
-
-public func grid(_ transform: (Int, Int) -> Model?) -> Model {
-	sum((0..<4).flatMap { x in
-		(0..<6).compactMap { y in
-			transform(x, y).map(mov(
-				(Double(x) - 1.5) * inch,
-				(Double(y) - 2.5) * inch
-			))
-		}
-	})
 }
 
 public func holes(_ w: Double, _ h: Double, _ length: Double, _ radius: Double) -> Model {

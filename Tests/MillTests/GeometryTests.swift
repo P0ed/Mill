@@ -59,23 +59,8 @@ struct GeometryTests {
 		#expect(abs(try #require(middle.volume) - 2 * .pi * 6) < 1e-5)
 	}
 
-	@Test func patternsAndGrids() throws {
-		let cells = (0..<4).flatMap { x in
-			(0..<6).map { (x, $0) }
-		}
-		#expect(cells.filter { ptnM($0.0, $0.1) }.count == 20)
-		#expect(cells.filter { ptnBotM($0.0, $0.1) }.count == 10)
-		#expect(cells.allSatisfy { ptnX($0.0, $0.1) != ptnD($0.0, $0.1) })
-
-		let rules = ptnsMap((ptnTopL, { 1 }), (ptnAll, { 2 }))
-		#expect(rules(0, 5) == 1)
-		#expect(rules(1, 5) == 2)
-
-		let g = grid { x, y in ptnTopL(x, y) ? box(2, 2, 2) : nil }
-		let center = try bounds(g).center
-		#expect(abs(center.x + 1.5 * inch) < 1e-5)
-		#expect(abs(center.y - 2.5 * inch) < 1e-5)
-		#expect(try grid { _, _ in nil }.result.get() == nil)
+	@Test func emptyModels() throws {
+		#expect(try Model.empty.result.get() == nil)
 		#expect(abs(try #require((box(2, 3, 4) + .empty).shape.volume) - 24) < 1e-5)
 	}
 
@@ -83,7 +68,6 @@ struct GeometryTests {
 		#expect(throws: (any Error).self) { try mov(5)(box(-1, 2, 3)).shape }
 		#expect(throws: (any Error).self) { try thread("unknown", length: 5).shape }
 		#expect(throws: (any Error).self) { try thread("M4", length: -1).shape }
-		#expect(throws: (any Error).self) { try AGCDimensions(modules: 0) }
 	}
 
 	@Test(arguments: [
@@ -127,22 +111,24 @@ struct GeometryTests {
 		#expect(abs(b.max.z - 3) < 0.01)
 	}
 
-	@Test(arguments: [1, 2, 3])
-	func enclosure(_ modules: Int) throws {
-		let parts = try defaultAGC(modules: modules, includeControls: false)
-		for (name, model) in [("bottom", parts.bottom), ("top", parts.top)] {
+	@Test func panelEnclosure() throws {
+		let url = try #require(Bundle.module.url(
+			forResource: "serge-prototype",
+			withExtension: "panel",
+			subdirectory: "Fixtures"
+		))
+		let panel = try PanelLayout(contentsOf: url)
+		let parts = try agc(panel: panel, includeControls: false)
+		for model in [parts.bottom, parts.top] {
 			let shape = try model.shape
 			#expect(shape.isValid)
 			#expect(try #require(shape.volume) > 0)
-			// The single-module case now uses four bolts and revised pockets.
-			if modules > 1 {
-				try compareWithDIY(shape, name: "\(modules)-\(name)")
-			}
 		}
+		try compareWithDIY(parts.bottom.shape, name: "2-bottom")
 
 		let b = try bounds(parts.enclosure)
-		#expect(abs(b.size.x - (Double(modules) * 4 * inch + 0.5 * inch)) < 1e-4)
-		#expect(abs(b.size.y - 7 * inch) < 1e-4)
+		#expect(abs(b.size.x - panel.size.width) < 1e-4)
+		#expect(abs(b.size.y - panel.size.height) < 1e-4)
 		#expect(abs(b.size.z - 30.002) < 1e-4)
 	}
 

@@ -82,19 +82,20 @@ struct PanelTests {
 			9: ["control": "nkkMN12", "togglePosition": "up"],
 			18: ["control": "nkkMN12", "togglePosition": "down"],
 		]))
-		let expected = mov(-38.1, 63.5)(bourns51(-90, nutAngle: 0))
-			+ mov(-12.7, 38.1)(toggle(false, nutAngle: 0))
-			+ mov(12.7, 12.7)(toggle(true, nutAngle: 0))
-		let actual = panel.controls(angle: nil)
+		let parts = try agc(panel: panel)
+		let expected = mov(z: 14.5)(
+			mov(-38.1, 63.5)(bourns51(-90, nutAngle: 0))
+				+ mov(-12.7, 38.1)(toggle(false, nutAngle: 0))
+				+ mov(12.7, 12.7)(toggle(true, nutAngle: 0))
+		)
+		let actual = parts.controls
 
 		#expect(try volume(actual - expected) < 1e-5)
 		#expect(try volume(expected - actual) < 1e-5)
 
-		let knob = mov(-38.1, 63.5)(knobV30(-90))
-		#expect(try volume(panel.knobs(angle: nil) - knob) < 1e-5)
-
-		let override = mov(-38.1, 63.5)(knobV30(0))
-		#expect(try volume(panel.knobs(angle: 0) - override) < 1e-5)
+		let knob = mov(-38.1, 63.5, 20)(knobV30(-90))
+		#expect(try volume(parts.knobs - knob) < 1e-5)
+		#expect(try volume(knob - parts.knobs) < 1e-5)
 	}
 
 	@Test(arguments: PanelLayout.Control.allCases)
@@ -114,7 +115,7 @@ struct PanelTests {
 		)
 
 		let panel = try PanelLayout.decode(document(cells: [0: ["control": control.rawValue]]))
-		#expect(try panel.controls(angle: nil).shape.isValid)
+		#expect(try panel.controls().shape.isValid)
 	}
 
 	@Test(arguments: ["fourBySix", "eightBySix"])
@@ -143,46 +144,40 @@ struct PanelTests {
 
 	@Test func singleModuleConstruction() throws {
 		let panel = try PanelLayout.decode(document())
-		let cases = [
-			try defaultAGC(modules: 1, includeControls: false),
-			try agc(panel: panel, includeControls: false),
-		]
+		let parts = try agc(panel: panel, includeControls: false)
+		let width = try bounds(parts.enclosure).size.x
+		for (model, direction, radius) in [(parts.bottom, -1.0, 1.65), (parts.top, 1.0, 2.1)] {
+			#expect(try model.shape.isValid)
+			#expect(try model.shape.subShapeCount(ofType: .solid) == 1)
 
-		for parts in cases {
-			let width = try bounds(parts.enclosure).size.x
-			for (model, direction, radius) in [(parts.bottom, -1.0, 1.65), (parts.top, 1.0, 2.1)] {
-				#expect(try model.shape.isValid)
-				#expect(try model.shape.subShapeCount(ofType: .solid) == 1)
-
-				for y in [-82.55, 82.55] {
-					// Only the four corner bolts are drilled; the middle of each flange is solid.
-					let center = mov(0, y, direction * 9)(box(1, 1, 1))
-					#expect(abs(try volume(model * center) - 1) < 1e-5)
-					for x in [-width / 2 + 6.35, width / 2 - 6.35] {
-						let hole = mov(x, y, direction * 7.5)(cylinder(20, radius))
-						#expect(try volume(model * hole) < 1e-5)
-						let ring = mov(x, y, direction * 2.5)(
-							cylinder(3, radius + 0.4) - cylinder(3, radius + 0.1)
-						)
-						#expect(abs(try volume(model * ring) - volume(ring)) < 1e-5)
-					}
+			for y in [-82.55, 82.55] {
+				// Only the four corner bolts are drilled; the middle of each flange is solid.
+				let center = mov(0, y, direction * 9)(box(1, 1, 1))
+				#expect(abs(try volume(model * center) - 1) < 1e-5)
+				for x in [-width / 2 + 6.35, width / 2 - 6.35] {
+					let hole = mov(x, y, direction * 7.5)(cylinder(20, radius))
+					#expect(try volume(model * hole) < 1e-5)
+					let ring = mov(x, y, direction * 2.5)(
+						cylinder(3, radius + 0.4) - cylinder(3, radius + 0.1)
+					)
+					#expect(abs(try volume(model * ring) - volume(ring)) < 1e-5)
 				}
-
-				// The recessed skin must not open through either long side wall.
-				for x in [-width / 2 + 7.1, width / 2 - 7.1] {
-					for y in [-55.0, -25.0, 25.0, 55.0] {
-						let wall = mov(x, y, direction * 9)(box(1, 1, 1))
-						#expect(abs(try volume(model * wall) - 1) < 1e-5)
-					}
-				}
-
-				// Pockets cross x=0; the horizontal rib and outer skin remain.
-				for y in [-38.1, 38.1] {
-					#expect(try volume(model * mov(0, y, direction * 9)(box(1, 1, 1))) < 1e-5)
-					#expect(abs(try volume(model * mov(0, y, direction * 14)(box(1, 1, 1))) - 1) < 1e-5)
-				}
-				#expect(abs(try volume(model * mov(0, 0, direction * 9)(box(1, 1, 1))) - 1) < 1e-5)
 			}
+
+			// The recessed skin must not open through either long side wall.
+			for x in [-width / 2 + 7.1, width / 2 - 7.1] {
+				for y in [-55.0, -25.0, 25.0, 55.0] {
+					let wall = mov(x, y, direction * 9)(box(1, 1, 1))
+					#expect(abs(try volume(model * wall) - 1) < 1e-5)
+				}
+			}
+
+			// Pockets cross x=0; the horizontal rib and outer skin remain.
+			for y in [-38.1, 38.1] {
+				#expect(try volume(model * mov(0, y, direction * 9)(box(1, 1, 1))) < 1e-5)
+				#expect(abs(try volume(model * mov(0, y, direction * 14)(box(1, 1, 1))) - 1) < 1e-5)
+			}
+			#expect(abs(try volume(model * mov(0, 0, direction * 9)(box(1, 1, 1))) - 1) < 1e-5)
 		}
 	}
 

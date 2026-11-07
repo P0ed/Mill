@@ -10,23 +10,23 @@ SwiftPM downloads OCCTSwift's prebuilt OCCT kernel on the first build.
 
 ```sh
 swift build
-swift run mill --output output
-swift run mill --modules 1,2,3 --output output
+swift run mill "../Panels/Examples/Serge Prototype.panel" --output output
 swift test
 ```
 
-The default is the 2-module layout from DIY's `main.py`, with the same
-potentiometer/toggle patterns and alternating knob styles. Dimensions are in
-millimeters; public rotation helpers take degrees. Hardware orientations are
-random by default, as in DIY. Use `--angle 0` for repeatable output.
+AGC generation requires a `.panel` file saved by [`../Panels`](../Panels).
+The document determines the case size, visible controls, knob angles, and
+toggle positions. CLI options control exports; there is no default layout or
+separate case-design configuration. Dimensions are in millimeters; public
+rotation helpers take degrees.
 
 ```sh
-swift run mill --modules 2 --angle 0 --threads --output output
-swift run mill --modules 1 --case-only --no-svg --output output
+swift run mill "My Module.panel" --threads --output output
+swift run mill "My Module.panel" --case-only --no-svg --output output
 swift run mill --help
 ```
 
-Each module count produces:
+Each input file produces:
 
 | File | Contents |
 | --- | --- |
@@ -34,10 +34,10 @@ Each module count produces:
 | `STL/AGC-2M-10.stl`, `STEP/AGC-2M-10.step`, `SVG/AGC-2M-10.svg` | Top |
 | `STL/AGC-2M-11.stl` | Assembled case |
 | `STL/AGC-2M-11P.stl` | Case with controls and knobs |
-| `STL/KNOB-V30.stl`, `STL/KNOB-T.stl` | Knobs in the original export orientation |
-| `SVG/AGC-01T.svg` with `--threads` | M4 thread section of the first case |
+| `STL/KNOB-V30.stl` | V30 knob in the original export orientation |
+| `SVG/AGC-01T.svg` with `--threads` | M4 thread section |
 
-`2M` changes to the requested module count. `--case-only` omits hardware and
+`2M` changes to `1M` for a four-column panel. `--case-only` omits hardware and
 knob exports. `--hidden` includes hidden edges in SVG drawings.
 As in DIY, `--threads` adds a section illustration; the case's mounting holes
 remain tap-drilled. The port is a library and headless CLI; view the exported
@@ -45,8 +45,7 @@ files in a CAD viewer instead of Python's `ocp_vscode.show`.
 
 ## Panels input
 
-Pass a `.panel` document saved by [`../Panels`](../Panels) to use its visible
-control layout:
+Pass the required `.panel` document as a positional argument or with `--panel`:
 
 ```sh
 swift run mill "../Panels/Examples/Serge Prototype.panel" --output output
@@ -55,12 +54,11 @@ swift run mill --panel "../Panels/Examples/Serge Prototype.panel" --case-only --
 
 Version 1 documents support both panel sizes: 4 × 6 produces a 107.95 × 177.8 mm
 case (`AGC-1M`), and 8 × 6 produces a 215.9 × 177.8 mm case (`AGC-2M`).
-The four-column case matches Panels' 4.25″ width; the original `--modules 1`
-case remains 4.5″ wide. Panel input cannot be combined with `--modules`.
+The four-column case matches Panels' 4.25″ width.
 The case keeps AGC's depth, construction, and M4 mounting holes; it does not
 use the four 3.2 mm mounting holes drawn in Panels' artwork.
 
-Both single-module versions use four corner bolts. Their internal pockets
+The single-module case uses four corner bolts. Its internal pockets
 stay inside the side walls and retain only the horizontal center rib.
 Larger cases keep six bolts and both center ribs.
 
@@ -70,8 +68,7 @@ are supported, including the three LEMO contact counts and a simplified NKK
 MBNF15 pushbutton model. The button uses the round-bushing 6.5 mm hole from
 [NKK's panel cutout drawing](https://www.nkkswitches.com/pdf/MBN_PushbuttonSections_DP.pdf).
 Potentiometers use V30 knobs with their saved angles; toggle levers follow
-their saved positions. Nut angles default to zero. `--angle` overrides knob,
-shaft, and nut angles; toggles keep their saved positions.
+their saved positions. Nut angles are zero.
 Captions, frames, colors, title, and finish do not affect the CAD geometry.
 The existing export options and filenames apply.
 
@@ -105,49 +102,36 @@ its result with another model: `body - (mirror(.yz) • mov(10) § cutter)`.
 `+` unions, `-` subtracts, and `*` intersects models. `mirror` unions reflected
 copies. Boxes and cylinders are centered; cones and extrusions start at Z=0.
 Modeling is eager, with failures propagated through `Model`; accessing
-`try model.shape` or exporting throws the first failure. Empty patterns produce
-an empty model, which can be combined with other models.
+`try model.shape` or exporting throws the first failure. `Model.empty` can be
+combined with other models.
 
 ```swift
-let parts = try agc(
-    modules: 2,
-    potsPattern: { _ in ptnBotM && ptnX },
-    togglesPattern: { _ in ptnBotM && ptnD },
-    knobs: { _ in knobTower },
-    controlAngle: 0
-)
-try export("custom-top", parts.top)
 let ridge = thread("M4", length: 10, location: .internal)
 ```
-
-Combine `Pattern` values with `&&`, `||`, and prefix `!`, using normal Boolean
-precedence: `ptnTop && !ptnTopL || ptnBotM`. The resulting pattern evaluates
-its operands at each grid cell, with `&&` and `||` short-circuiting that evaluation.
 
 ## Source mapping
 
 | DIY | Mill |
 | --- | --- |
-| `lib/tools.py` | `Composition.swift`, `Patterns.swift` |
+| `lib/tools.py` | `Composition.swift`, constants in `Geometry.swift` |
 | `lib/ddd.py` | `Model.swift`, `Geometry.swift`, `Controls.swift` |
 | `lib/thread.py` | `Thread.swift` |
 | `lib/export.py` | `Export.swift` |
 | `agc.py` | `AGC.swift` |
 | `main.py` | `Sources/MillCLI/main.swift` |
 
-Swift APIs use camelCase (`ptnBotM`, `ptnsMap`, `threeView`). `AGCParts` names
-the original positional results. `defaultAGC` applies `main.py`'s patterns;
-`agc` retains `agc.py`'s defaults. Thread curves retain the original dimensions, clearance and
+Swift APIs use camelCase (`threeView`, `knobV30`). `AGCParts` names
+the original positional results. `agc(panel:)` builds the case from a decoded
+Panels document. Thread curves retain the original dimensions, clearance and
 taper equations, using OCCTSwift spline interpolation and sewn ruled surfaces.
 SVGs use OCCT hidden-line removal with vector polylines at 0.02 mm deflection.
 The squircle helper uses the exact fifth-power diagonal instead of DIY's
 rounded sample boundary, removing tiny self-intersections at its mirrored seams.
 
-Tests cover composition order, centered primitives, edge selection, patterns,
-hardware, threads, 1M/2M/3M enclosures, and export round trips. Geometry bounds
-and volumes are checked against measured Python reference fixtures. The 2M
-STEP parts also matched the originals with zero symmetric-difference volume
-when reimported into CadQuery.
+Tests cover composition order, centered primitives, edge selection, hardware,
+threads, both panel sizes, saved hardware positions, corner profiles, and export
+round trips. Hardware, thread, and 2M bottom bounds and volumes are checked
+against measured Python reference fixtures.
 
 OCCTSwift and its bundled OCCT kernel carry their upstream LGPL license terms;
 see the dependency's license and OCCT exception when distributing binaries.

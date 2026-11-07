@@ -97,7 +97,7 @@ public struct PanelLayout: Decodable, Sendable {
 
 	func cutouts(_ depth: Double) -> Model { models { $0.control?.cutout(depth) } }
 
-	func controls(angle: Double?) -> Model {
+	func controls() -> Model {
 		models { cell in
 			guard let control = cell.control else { return nil }
 
@@ -107,18 +107,18 @@ public struct PanelLayout: Decodable, Sendable {
 			case .lemo1B304: return lemoECG1B304()
 			case .pomona1581: return pomona1581()
 			// Mill's true toggle position points toward negative Y.
-			case .nkkMN12: return toggle(cell.togglePosition == .down, nutAngle: angle ?? 0)
-			case .nkkMBNF15: return pushbutton(nutAngle: angle ?? 0)
+			case .nkkMN12: return toggle(cell.togglePosition == .down, nutAngle: 0)
+			case .nkkMBNF15: return pushbutton(nutAngle: 0)
 			case .vccCLB300: return clb300()
 			// Panels measures knob angles clockwise from twelve o'clock.
-			case .bourns51: return bourns51(angle ?? -cell.knobAngle, nutAngle: angle ?? 0)
+			case .bourns51: return bourns51(-cell.knobAngle, nutAngle: 0)
 			}
 		}
 	}
 
-	func knobs(angle: Double?) -> Model {
+	func knobs() -> Model {
 		models { cell in
-			cell.control == .bourns51 ? knobV30(angle ?? -cell.knobAngle) : nil
+			cell.control == .bourns51 ? knobV30(-cell.knobAngle) : nil
 		}
 	}
 }
