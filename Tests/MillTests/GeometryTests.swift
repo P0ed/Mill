@@ -111,6 +111,37 @@ struct GeometryTests {
 		#expect(abs(b.max.z - 3) < 0.01)
 	}
 
+	@Test func cylinderHeadTorxM4x14() throws {
+		let bolt = boltM4x14()
+		let shape = try bolt.shape
+		#expect(shape.isValid)
+		#expect(shape.subShapeCount(ofType: .solid) == 1)
+		for solid in shape.subShapes(ofType: .solid) {
+			#expect(solid.isValidSolid)
+		}
+		let b = try bounds(bolt)
+		#expect(abs(b.size.x - 7) < 1e-5)
+		#expect(abs(b.size.y - 7) < 1e-5)
+		#expect(abs(b.min.z + 14) < 1e-5)
+		#expect(abs(b.max.z - 4) < 1e-5)
+
+		func probe(_ x: Double, _ y: Double, _ z: Double) throws -> Double {
+			try (bolt * mov(x, y, z)(box(0.04, 0.04, 0.04))).result.get()?.volume ?? 0
+		}
+		// Six rounded lobes are recessed; material remains between them and below the socket.
+		#expect(try probe(0, 0, 3) < 1e-8)
+		for i in 0..<6 {
+			let a = Double(i) * .pi / 3
+			#expect(try probe(1.9 * cos(a), 1.9 * sin(a), 3) < 1e-8)
+			#expect(abs(try probe(1.65 * cos(a + .pi / 6), 1.65 * sin(a + .pi / 6), 3) - 0.000064) < 1e-8)
+		}
+		#expect(abs(try probe(0, 0, 2.3) - 0.000064) < 1e-8)
+		// A ridge repeats after one 0.7 mm pitch and is absent half a turn later.
+		#expect(abs(try probe(0, -1.8, -7) - 0.000064) < 1e-8)
+		#expect(abs(try probe(0, -1.8, -6.3) - 0.000064) < 1e-8)
+		#expect(try probe(0, -1.8, -6.65) < 1e-8)
+	}
+
 	@Test func panelEnclosure() throws {
 		let url = try #require(Bundle.module.url(
 			forResource: "serge-prototype",

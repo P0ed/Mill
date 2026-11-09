@@ -1,7 +1,7 @@
 # Mill
 
 A Swift port of [`../DIY`](https://github.com/P0ed/DIY), built on [OCCTSwift 3.0.0](https://github.com/SecondMouseAU/OCCTSwift/tree/v3.0.0).
-Includes the AGC case, connector and control models, V30 and tower knobs,
+Includes the AGC case, connector and control models, V30 and tower knobs, M4×14 Torx bolts,
 ISO/UTS thread ridges, and STL, STEP, and three-view SVG export.
 
 Requires Swift 6.1+ and an Apple Silicon Mac running macOS 12+.
@@ -32,12 +32,13 @@ Each input file produces:
 | `STL/AGC-2M-01.stl`, `STEP/AGC-2M-01.step`, `SVG/AGC-2M-01.svg` | Bottom |
 | `STL/AGC-2M-10.stl`, `STEP/AGC-2M-10.step`, `SVG/AGC-2M-10.svg` | Top |
 | `STL/AGC-2M-11.stl` | Assembled case |
-| `STL/AGC-2M-11P.stl` | Case with controls and knobs |
+| `STL/AGC-2M-11P.stl` | Complete assembly with controls, knobs, and mounting bolts |
 | `STL/KNOB-V30.stl` | V30 knob in the original export orientation |
+| `STL/BOLT-M4X14-TORX.stl` | Cylinder-head M4×14 bolt with T20 socket and helical thread |
 | `SVG/AGC-01T.svg` with `--threads` | M4 thread section |
 
-`2M` changes to `1M` for a four-column panel. `--case-only` omits hardware and
-knob exports. `--hidden` includes hidden edges in SVG drawings.
+`2M` changes to `1M` for a four-column panel. `--case-only` omits the populated
+assembly and separate bolt and knob exports. `--hidden` includes hidden edges in SVG drawings.
 As in DIY, `--threads` adds a section illustration; the case's mounting holes
 remain tap-drilled. The port is a library and headless CLI; view the exported
 files in a CAD viewer instead of Python's `ocp_vscode.show`.
@@ -60,6 +61,17 @@ use the four 3.2 mm mounting holes drawn in Panels' artwork.
 The single-module case uses four corner bolts. Its internal pockets
 stay inside the side walls and retain only the horizontal center rib.
 Larger cases keep six bolts and both center ribs.
+
+The populated assembly includes ISO 14579 cylinder-head Torx M4×14 mounting
+bolts, seated on the recessed flanges at Z=10 mm. Each bolt has a 7 mm diameter,
+4 mm high head, a 1.6 mm deep T20 socket, and a 14 mm shank with a modeled
+0.7 mm pitch thread and chamfered tip. Dimensions follow
+[Accu's M4×14 specification](https://www.accu.co.uk/torx-cap-head-screws/14350-SHC-M4-14-A2).
+The rounded six-lobe socket is a visual model, not a manufacturing gauge.
+`boltM4x14()` exposes the separate bolt with its bearing face at Z=0 and tip
+at Z=-14. `AGCParts.bolts` exposes all installed bolts; `populated` keeps the
+case and hardware as assembly solids. Bolt threads are always modeled,
+independently of `--threads`, which controls the case thread-section drawing.
 
 Only visible cells produce cutouts and hardware. Hidden columns are ignored,
 and empty or artwork-only cells stay undrilled. All eight Panels control types

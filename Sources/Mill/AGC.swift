@@ -5,10 +5,12 @@ public struct AGCParts: Sendable {
 	public let top: Model
 	public let controls: Model
 	public let knobs: Model
+	public let bolts: Model
 	public let threadSection: Model?
-	public var parts: [Model] { [bottom, top, controls, knobs] + [threadSection].compactMap(id) }
+	public var parts: [Model] { [bottom, top, controls, knobs, bolts] + [threadSection].compactMap(id) }
 	public var enclosure: Model { bottom + top }
-	public var populated: Model { sum([bottom, top, controls, knobs]) }
+	// Keep the hardware as assembly solids, including threads entering tap-drilled holes.
+	public var populated: Model { compound([bottom, top, controls, knobs, bolts]) }
 }
 
 public struct AGCDimensions: Sendable {
@@ -38,6 +40,10 @@ public func agc(
 	let cw = 4 * inch, ch = 6 * inch, col = dimensions.column, hol = col / 2
 	let w = dimensions.width, h = dimensions.height, t = dimensions.depth
 	let t2 = t / 2, t3 = t2 / 2, dt = 5.0, c2 = 0.5, crh = (2 - s2) * hol
+	let mountingX = modules == 1 ? [-w / 2 + hol, w / 2 - hol] : [-w / 2 + hol, 0, w / 2 - hol]
+	let mountingPositions = mountingX.flatMap { x in
+		[-h / 2 + hol, h / 2 - hol].map { SIMD2(x, $0) }
+	}
 
 	func boxFC(_ width: Double, _ height: Double, _ depth: Double) -> Model {
 		mill(width, height, depth, r: 3, c: c2)
@@ -50,8 +56,7 @@ public func agc(
 	}
 
 	func mountingHoles(_ radius: Double) -> Model {
-		let corners = holes(w / 2 - hol, h / 2 - hol, t2, radius)
-		return modules == 1 ? corners : corners + holes(0, h / 2 - hol, t2, radius)
+		sum(mountingPositions.map { mov($0.x, $0.y)(cylinder(t2, radius)) })
 	}
 
 	func brick(_ direction: Double) -> Model {
@@ -106,6 +111,14 @@ public func agc(
 
 	let controls = includeControls ? panel.controls() : .empty
 	let extra = includeControls ? panel.knobs() : .empty
+	let bolts: Model
+	if includeControls {
+		let bolt = boltM4x14()
+		// The recessed mounting flange is at Z=10, below the raised panel skin.
+		bolts = compound(mountingPositions.map { mov($0.x, $0.y, t2 - dt)(bolt) })
+	} else {
+		bolts = .empty
+	}
 
 	var section: Model?
 	if threads {
@@ -127,6 +140,7 @@ public func agc(
 		top: mov(z: t3 + pl)(top),
 		controls: mov(z: t2 - 0.5)(controls),
 		knobs: mov(z: t2 + 5)(extra),
+		bolts: bolts,
 		threadSection: section
 	)
 	for part in parts.parts {

@@ -14,7 +14,7 @@ struct Options {
 	  --panel PATH      Specify the required Panels document instead of FILE.panel
 	  --output PATH     Output directory (default: current directory)
 	  --threads         Export the M4 thread section drawing, AGC-01T.svg
-	  --case-only       Skip populated assembly and separate knob STLs
+	  --case-only       Skip populated assembly and separate hardware STLs
 	  --no-svg          Skip SVG drawings
 	  --hidden          Include hidden edges in drawings
 	  --help            Show this help
@@ -92,8 +92,9 @@ func run(_ options: Options) throws {
 
 	if options.controls {
 		print("Exporting \(name)-11P…")
-		try export("\(name)-11P", parts.populated, to: options.output, svg: false, step: false)
+		try export("\(name)-11P", parts.populated, to: options.output, svg: false, step: false, deflection: 0.05)
 		try export("KNOB-V30", rotx(-90)(knobV30(0)), to: options.output, svg: false, step: false)
+		try export("BOLT-M4X14-TORX", boltM4x14(), to: options.output, svg: false, step: false, deflection: 0.025)
 	}
 
 	if options.svg, let section = parts.threadSection {

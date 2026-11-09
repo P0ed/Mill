@@ -133,6 +133,7 @@ struct PanelTests {
 		#expect(try parts.top.shape.isValid)
 		#expect(try parts.controls.result.get() == nil)
 		#expect(try parts.knobs.result.get() == nil)
+		#expect(try parts.bolts.result.get() == nil)
 		#expect(abs(try volume(parts.bottom) - volume(blankParts.bottom)) < 1e-5)
 		#expect(try volume(blankParts.top) > volume(parts.top))
 
@@ -140,6 +141,36 @@ struct PanelTests {
 		let x = (1 - Double(panel.size.columns - 1) / 2) * inch
 		#expect(try volume(parts.top * mov(x, 38.1, 14.5)(cylinder(0.5, 1))) < 1e-5)
 		#expect(try volume(parts.top * mov(x + inch, 38.1, 14.5)(cylinder(0.5, 1))) > 1)
+	}
+
+	@Test(arguments: ["fourBySix", "eightBySix"])
+	func populatedMountingBolts(_ size: String) throws {
+		let panel = try PanelLayout.decode(document(size: size, cells: [0: ["control": "bourns51"]]))
+		let parts = try agc(panel: panel)
+		let bolts = try parts.bolts.shape
+		let count = panel.modules == 1 ? 4 : 6
+		#expect(bolts.isValid)
+		#expect(bolts.subShapeCount(ofType: .solid) == count)
+		let b = try bounds(parts.bolts)
+		#expect(abs(b.min.z + 4) < 1e-5)
+		#expect(abs(b.max.z - 14) < 1e-5)
+
+		let x = panel.size.width / 2 - 6.35
+		let xs = panel.modules == 1 ? [-x, x] : [-x, 0, x]
+		for x in xs {
+			for y in [-82.55, 82.55] {
+				// The head bears on the recessed flange at Z=10, with its socket facing up.
+				let head = mov(x + 2.5, y, 11)(box(0.2, 0.2, 0.2))
+				#expect(abs(try volume(parts.bolts * head) - 0.008) < 1e-6)
+				let socket = mov(x, y, 13)(box(0.2, 0.2, 0.2))
+				#expect(try volume(parts.bolts * socket) < 1e-6)
+				let bearing = mov(x + 2.5, y, 9.9)(box(0.1, 0.1, 0.1))
+				#expect(abs(try volume(parts.top * bearing) - 0.001) < 1e-6)
+			}
+		}
+		#expect(try volume(parts.bolts * parts.top) < 1e-5)
+		#expect(try parts.populated.shape.isValid)
+		#expect(abs(try volume(parts.populated) - parts.parts.reduce(0) { try $0 + volume($1) }) < 1e-5)
 	}
 
 	@Test func singleModuleConstruction() throws {
